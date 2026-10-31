@@ -13,3 +13,17 @@ Convenção de trabalho deste projecto:
   na descrição, com a verificação manual correspondente.
 - **Idiomas** — mensagens de commit em inglês; documentação do repo em
   português de Portugal.
+
+## Traduções (i18n)
+
+As strings de UI usam `tr()` (`freecad.topografia.i18n`, contexto
+`Topografia`, inglês como fonte). O catálogo pt-PT vive em
+`freecad/topografia/resources/translations/topografia_pt-PT.ts`; depois
+de o editar, recompilar os `.qm` (o `InitGui.py` carrega-os):
+
+```bash
+LRELEASE=/mnt/hypatia/FreeCAD/.pixi/envs/default/lib/qt6/bin/lrelease
+cd freecad/topografia/resources/translations
+"$LRELEASE" topografia_pt-PT.ts -qm topografia_pt-PT.qm
+cp topografia_pt-PT.qm topografia_pt.qm   # variante para QLocale do sistema
+```
