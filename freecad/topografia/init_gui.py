@@ -31,27 +31,9 @@ class CmdImportarLevantamento:
         return True
 
     def Activated(self):
-        from PySide import QtWidgets
+        from freecad.topografia.gui.painel_importacao import PainelImportacao
 
-        from freecad.topografia.csv_io import le_pontos
-        from freecad.topografia.objetos.levantamento import definir_relatorio
-        from freecad.topografia.objetos.levantamento import Levantamento
-
-        caminhos, _ = QtWidgets.QFileDialog.getOpenFileNames(
-            None, "Levantamento (CSV/TXT)", "", "CSV/TXT (*.csv *.txt *.asc);;Todos (*)")
-        doc = _doc()
-        for caminho in caminhos:
-            relatorio = le_pontos(caminho)
-            nome = os.path.splitext(os.path.basename(caminho))[0]
-            obj = doc.addObject("Points::FeaturePython", "Levantamento")
-            Levantamento(obj)
-            definir_relatorio(obj, relatorio)
-            doc.recompute()
-            App.Console.PrintMessage(
-                f"[Topografia] {nome}: {relatorio.resumo}\n")
-            if relatorio.rejeitadas:
-                App.Console.PrintWarning(
-                    "Linhas rejeitadas: " + "; ".join(f"{n}: {m}" for n, m in relatorio.rejeitadas[:20]) + "\n")
+        Gui.Control.showDialog(PainelImportacao())
 
 
 class CmdCriarTIN:
