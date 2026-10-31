@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<package format="1" xmlns="https://wiki.freecad.org/Package_Metadata">
+
+    <!--[ Versions ]-->
+    <freecadmin>1.0.0</freecadmin>
+    <pythonmin>3.10</pythonmin>
+    <version>0.1.0</version>
+    <date>2026-10-31</date>
+
+    <!--[ Dependencies ]-->
+    <depend type="internal" optional="true">CorridorRoad</depend>
+
+    <!--[ Info ]-->
+    <name>Topografia</name>
+    <description>Base topográfica para projectos de estradas: importação CSV de levantamentos codificados (pt-PT pronto a usar, sem perda silenciosa de linhas), TIN Delaunay com breaklines impostas, curvas de nível paramétricas, terraplenagem (corte/aterro por áreas-médias com encontro de taludes no terreno, curva de massas) e exportação LandXML 1.2. Integra-se com o CorridorRoad para a cadeia alinhamento-perfil-corredor.</description>
+
+    <!--[ Tags ]-->
+    <tag>survey</tag>
+    <tag>road</tag>
+    <tag>TIN</tag>
+    <tag>earthworks</tag>
+    <tag>LandXML</tag>
+    <tag>topography</tag>
+
+    <!--[ Maintainers ]-->
+    <maintainer email="zsio2@protonmail.me">leandro</maintainer>
+
+    <!--[ Licenses ]-->
+    <license file="LICENSE">LGPL-2.1-or-later</license>
+
+    <!--[ Icon ]-->
+    <icon>freecad/topografia/resources/icons/topografia.svg</icon>
+
+    <!--[ Urls ]-->
+    <url type="repository" branch="main">https://github.com/melroleandro-solidreturn/freecad-topografia</url>
+    <url type="bugtracker">https://github.com/melroleandro-solidreturn/freecad-topografia/issues</url>
+    <url type="readme">README.md</url>
+
+    <!--[ Content ]-->
+    <content>
+        <workbench>
+            <subdirectory>.</subdirectory>
+            <classname>TopografiaWorkbench</classname>
+        </workbench>
+    </content>
+
+</package>
