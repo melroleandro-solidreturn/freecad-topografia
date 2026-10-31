@@ -9,6 +9,8 @@ import os
 import FreeCAD as App
 import FreeCADGui as Gui
 
+from freecad.topografia.i18n import tr
+
 RAIZ = os.path.dirname(__file__)  # módulo normal: __file__ é fiável
 
 
@@ -21,8 +23,8 @@ class CmdImportarLevantamento:
 
     def GetResources(self):
         return {
-            "MenuText": "Importar levantamento (CSV)",
-            "ToolTip": "Importa pontos topográficos com código; cria o objecto Levantamento",
+            "MenuText": tr("Import survey (CSV)"),
+            "ToolTip": tr("Import coded survey points (CSV/TXT); creates a Levantamento object"),
             "Pixmap": os.path.join(RAIZ, "freecad", "topografia", "resources", "icons", "levantamento.svg"),
             "Accel": "T,L",
         }
@@ -41,8 +43,8 @@ class CmdCriarTIN:
 
     def GetResources(self):
         return {
-            "MenuText": "Criar TIN do terreno",
-            "ToolTip": "Triangulação Delaunay com breaklines por código",
+            "MenuText": tr("Create terrain TIN"),
+            "ToolTip": tr("Delaunay triangulation with breaklines by code"),
             "Pixmap": os.path.join(RAIZ, "freecad", "topografia", "resources", "icons", "tin.svg"),
         }
 
@@ -60,8 +62,8 @@ class CmdCurvasDeNivel:
 
     def GetResources(self):
         return {
-            "MenuText": "Curvas de nível",
-            "ToolTip": "Curvas principais/intercalares paramétricas sobre a TIN",
+            "MenuText": tr("Contour lines"),
+            "ToolTip": tr("Parametric major/minor contours over the TIN"),
             "Pixmap": os.path.join(RAIZ, "freecad", "topografia", "resources", "icons", "curvas.svg"),
         }
 
@@ -85,8 +87,8 @@ class CmdTerraplenagem:
 
     def GetResources(self):
         return {
-            "MenuText": "Terraplenagem (volumes e mass haul)",
-            "ToolTip": "Cut/fill por áreas-médias com encontro de taludes na TIN",
+            "MenuText": tr("Earthworks (volumes and mass haul)"),
+            "ToolTip": tr("Cut/fill by average end area with slope-to-terrain daylight"),
             "Pixmap": os.path.join(RAIZ, "freecad", "topografia", "resources", "icons", "terras.svg"),
         }
 
@@ -104,8 +106,8 @@ class CmdExportarLandXML:
 
     def GetResources(self):
         return {
-            "MenuText": "Exportar LandXML",
-            "ToolTip": "Superfície TIN e/ou pontos em LandXML 1.2 (Civil 3D)",
+            "MenuText": tr("Export LandXML"),
+            "ToolTip": tr("TIN surface and/or points as LandXML 1.2 (Civil 3D)"),
             "Pixmap": os.path.join(RAIZ, "freecad", "topografia", "resources", "icons", "landxml.svg"),
         }
 
@@ -120,7 +122,7 @@ class CmdExportarLandXML:
         objectos = [o for o in Gui.Selection.getSelection() if e_exportavel(o)]
         if not objectos:
             App.Console.PrintWarning(
-                "[Topografia] seleccione uma TIN ou um Levantamento\n")
+                tr("[Topografia] select a TIN or a survey") + "\n")
             return
         titulo = ("Export LandXML" if len(objectos) == 1
                   else "Export LandXML (one file per object)")
@@ -139,7 +141,7 @@ class TopografiaWorkbench(Gui.Workbench):
     """Workbench de base topográfica para projectos de estradas."""
 
     MenuText = "Topografia"
-    ToolTip = "Levantamentos, TIN com breaklines, curvas de nível e terraplenagem"
+    ToolTip = tr("Surveys, breakline TIN, contour lines and earthworks")
     Icon = os.path.join(RAIZ, "freecad", "topografia", "resources", "icons", "topografia.svg")
 
     def Initialize(self):
