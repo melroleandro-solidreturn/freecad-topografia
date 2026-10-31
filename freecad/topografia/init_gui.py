@@ -115,19 +115,24 @@ class CmdExportarLandXML:
     def Activated(self):
         from PySide import QtWidgets
 
-        from freecad.topografia.landxml_export import exporta_pontos_landxml, exporta_tin_landxml
+        from freecad.topografia.gui.exportar_landxml import e_exportavel, exportar_seleccao
 
-        caminho, _ = QtWidgets.QFileDialog.getSaveFileName(
-            None, "Exportar LandXML", "", "LandXML (*.xml)")
-        if not caminho:
+        objectos = [o for o in Gui.Selection.getSelection() if e_exportavel(o)]
+        if not objectos:
+            App.Console.PrintWarning(
+                "[Topografia] seleccione uma TIN ou um Levantamento\n")
             return
-        for o in Gui.Selection.getSelection():
-            if "ModeloTIN" in o.PropertiesList and o.ModeloTIN:
-                n = exporta_tin_landxml(o.ModeloTIN, caminho)
-                App.Console.PrintMessage(f"[Topografia] {o.Label}: {n} triângulos -> {caminho}\n")
-            elif getattr(getattr(o, "Proxy", None), "Type", "") == "Topografia::Levantamento":
-                n = exporta_pontos_landxml(o, caminho)
-                App.Console.PrintMessage(f"[Topografia] {o.Label}: {n} pontos -> {caminho}\n")
+        titulo = ("Export LandXML" if len(objectos) == 1
+                  else "Export LandXML (one file per object)")
+        base, _ = QtWidgets.QFileDialog.getSaveFileName(
+            None, titulo, "", "LandXML (*.landxml)")
+        if not base:
+            return
+        mensagens, erros = exportar_seleccao(base, objectos)
+        for m in mensagens:
+            App.Console.PrintMessage(m + "\n")
+        for e in erros:
+            App.Console.PrintWarning(e + "\n")
 
 
 class TopografiaWorkbench(Gui.Workbench):
