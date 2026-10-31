@@ -9,6 +9,8 @@ import os
 import FreeCAD as App
 import FreeCADGui as Gui
 
+from freecad.topografia.i18n import tr
+
 RAIZ = os.path.dirname(__file__)  # módulo normal: __file__ é fiável
 
 
@@ -21,8 +23,8 @@ class CmdImportarLevantamento:
 
     def GetResources(self):
         return {
-            "MenuText": "Importar levantamento (CSV)",
-            "ToolTip": "Importa pontos topográficos com código; cria o objecto Levantamento",
+            "MenuText": tr("Import survey (CSV)"),
+            "ToolTip": tr("Import coded survey points (CSV/TXT); creates a Levantamento object"),
             "Pixmap": os.path.join(RAIZ, "freecad", "topografia", "resources", "icons", "levantamento.svg"),
             "Accel": "T,L",
         }
@@ -31,27 +33,9 @@ class CmdImportarLevantamento:
         return True
 
     def Activated(self):
-        from PySide import QtWidgets
+        from freecad.topografia.gui.painel_importacao import PainelImportacao
 
-        from freecad.topografia.csv_io import le_pontos
-        from freecad.topografia.objetos.levantamento import definir_relatorio
-        from freecad.topografia.objetos.levantamento import Levantamento
-
-        caminhos, _ = QtWidgets.QFileDialog.getOpenFileNames(
-            None, "Levantamento (CSV/TXT)", "", "CSV/TXT (*.csv *.txt *.asc);;Todos (*)")
-        doc = _doc()
-        for caminho in caminhos:
-            relatorio = le_pontos(caminho)
-            nome = os.path.splitext(os.path.basename(caminho))[0]
-            obj = doc.addObject("Points::FeaturePython", "Levantamento")
-            Levantamento(obj)
-            definir_relatorio(obj, relatorio)
-            doc.recompute()
-            App.Console.PrintMessage(
-                f"[Topografia] {nome}: {relatorio.resumo}\n")
-            if relatorio.rejeitadas:
-                App.Console.PrintWarning(
-                    "Linhas rejeitadas: " + "; ".join(f"{n}: {m}" for n, m in relatorio.rejeitadas[:20]) + "\n")
+        Gui.Control.showDialog(PainelImportacao())
 
 
 class CmdCriarTIN:
@@ -59,29 +43,18 @@ class CmdCriarTIN:
 
     def GetResources(self):
         return {
-            "MenuText": "Criar TIN do terreno",
-            "ToolTip": "Triangulação Delaunay com breaklines por código",
+            "MenuText": tr("Create terrain TIN"),
+            "ToolTip": tr("Delaunay triangulation with breaklines by code"),
             "Pixmap": os.path.join(RAIZ, "freecad", "topografia", "resources", "icons", "tin.svg"),
         }
 
     def IsActive(self):
-        return bool(Gui.Selection.getSelection())
+        return True
 
     def Activated(self):
-        from freecad.topografia.objetos.tin import TIN
+        from freecad.topografia.gui.painel_tin import PainelTIN
 
-        seleccionados = [o for o in Gui.Selection.getSelection()
-                         if getattr(o, "Proxy", None) and o.Proxy.Type == "Topografia::Levantamento"]
-        if not seleccionados:
-            App.Console.PrintError("[Topografia] seleccione um ou mais Levantamentos\n")
-            return
-        doc = _doc()
-        obj = doc.addObject("Mesh::FeaturePython", "TIN")
-        TIN(obj)
-        obj.Levantamentos = seleccionados
-        obj.CodigosBreakline = ["EIX"]
-        doc.recompute()
-        App.Console.PrintMessage(f"[Topografia] TIN: {obj.Estatisticas}\n")
+        Gui.Control.showDialog(PainelTIN())
 
 
 class CmdCurvasDeNivel:
@@ -89,8 +62,8 @@ class CmdCurvasDeNivel:
 
     def GetResources(self):
         return {
-            "MenuText": "Curvas de nível",
-            "ToolTip": "Curvas principais/intercalares paramétricas sobre a TIN",
+            "MenuText": tr("Contour lines"),
+            "ToolTip": tr("Parametric major/minor contours over the TIN"),
             "Pixmap": os.path.join(RAIZ, "freecad", "topografia", "resources", "icons", "curvas.svg"),
         }
 
@@ -114,39 +87,18 @@ class CmdTerraplenagem:
 
     def GetResources(self):
         return {
-            "MenuText": "Terraplenagem (volumes e mass haul)",
-            "ToolTip": "Cut/fill por áreas-médias com encontro de taludes na TIN",
+            "MenuText": tr("Earthworks (volumes and mass haul)"),
+            "ToolTip": tr("Cut/fill by average end area with slope-to-terrain daylight"),
             "Pixmap": os.path.join(RAIZ, "freecad", "topografia", "resources", "icons", "terras.svg"),
         }
 
     def IsActive(self):
-        return bool(Gui.Selection.getSelection())
+        return True
 
     def Activated(self):
-        from freecad.topografia.objetos.terraplenagem import Terraplenagem
+        from freecad.topografia.gui.painel_terraplenagem import PainelTerraplenagem
 
-        doc = _doc()
-        obj = doc.addObject("App::FeaturePython", "Terraplenagem")
-        Terraplenagem(obj)
-        por_tipo = {}
-        for o in Gui.Selection.getSelection():
-            tipo = str(getattr(getattr(o, "Proxy", None), "Type", "") or "")
-            if tipo == "Topografia::Levantamento":
-                continue
-            if "ModeloTIN" in o.PropertiesList:
-                por_tipo["tin"] = o
-            elif str(o.Name).startswith("V1Alignment") or "AlignmentId" in o.PropertiesList and "IPPoints" in o.PropertiesList:
-                por_tipo["alinhamento"] = o
-            elif str(o.Name).startswith("V1Profile") or "ProfileKind" in o.PropertiesList:
-                por_tipo["perfil"] = o
-        if "tin" in por_tipo:
-            obj.TIN = por_tipo["tin"]
-        if "alinhamento" in por_tipo:
-            obj.Alinhamento = por_tipo["alinhamento"]
-        if "perfil" in por_tipo:
-            obj.Perfil = por_tipo["perfil"]
-        doc.recompute()
-        App.Console.PrintMessage(f"[Topografia] {obj.Estatisticas}\n")
+        Gui.Control.showDialog(PainelTerraplenagem())
 
 
 class CmdExportarLandXML:
@@ -154,8 +106,8 @@ class CmdExportarLandXML:
 
     def GetResources(self):
         return {
-            "MenuText": "Exportar LandXML",
-            "ToolTip": "Superfície TIN e/ou pontos em LandXML 1.2 (Civil 3D)",
+            "MenuText": tr("Export LandXML"),
+            "ToolTip": tr("TIN surface and/or points as LandXML 1.2 (Civil 3D)"),
             "Pixmap": os.path.join(RAIZ, "freecad", "topografia", "resources", "icons", "landxml.svg"),
         }
 
@@ -165,26 +117,31 @@ class CmdExportarLandXML:
     def Activated(self):
         from PySide import QtWidgets
 
-        from freecad.topografia.landxml_export import exporta_pontos_landxml, exporta_tin_landxml
+        from freecad.topografia.gui.exportar_landxml import e_exportavel, exportar_seleccao
 
-        caminho, _ = QtWidgets.QFileDialog.getSaveFileName(
-            None, "Exportar LandXML", "", "LandXML (*.xml)")
-        if not caminho:
+        objectos = [o for o in Gui.Selection.getSelection() if e_exportavel(o)]
+        if not objectos:
+            App.Console.PrintWarning(
+                tr("[Topografia] select a TIN or a survey") + "\n")
             return
-        for o in Gui.Selection.getSelection():
-            if "ModeloTIN" in o.PropertiesList and o.ModeloTIN:
-                n = exporta_tin_landxml(o.ModeloTIN, caminho)
-                App.Console.PrintMessage(f"[Topografia] {o.Label}: {n} triângulos -> {caminho}\n")
-            elif getattr(getattr(o, "Proxy", None), "Type", "") == "Topografia::Levantamento":
-                n = exporta_pontos_landxml(o, caminho)
-                App.Console.PrintMessage(f"[Topografia] {o.Label}: {n} pontos -> {caminho}\n")
+        titulo = ("Export LandXML" if len(objectos) == 1
+                  else "Export LandXML (one file per object)")
+        base, _ = QtWidgets.QFileDialog.getSaveFileName(
+            None, titulo, "", "LandXML (*.landxml)")
+        if not base:
+            return
+        mensagens, erros = exportar_seleccao(base, objectos)
+        for m in mensagens:
+            App.Console.PrintMessage(m + "\n")
+        for e in erros:
+            App.Console.PrintWarning(e + "\n")
 
 
 class TopografiaWorkbench(Gui.Workbench):
     """Workbench de base topográfica para projectos de estradas."""
 
     MenuText = "Topografia"
-    ToolTip = "Levantamentos, TIN com breaklines, curvas de nível e terraplenagem"
+    ToolTip = tr("Surveys, breakline TIN, contour lines and earthworks")
     Icon = os.path.join(RAIZ, "freecad", "topografia", "resources", "icons", "topografia.svg")
 
     def Initialize(self):

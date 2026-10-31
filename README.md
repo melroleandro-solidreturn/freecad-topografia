@@ -47,8 +47,16 @@ https://github.com/melroleandro-solidreturn/freecad-topografia para `~/.local/sh
 para `~/.local/share/FreeCAD/<versão>/Mod/Topografia`. O `Init.py` faz o
 bootstrap do namespace `freecad.topografia` e é seguro em consola
 (FreeCADCmd); o `InitGui.py` regista o workbench **Topografia** com os
-comandos: Importar levantamento (CSV), Criar TIN, Curvas de nível,
-Terraplenagem e Exportar LandXML.
+comandos: Import survey (CSV), Create terrain TIN, Contour lines,
+Earthworks e Export LandXML — interface em inglês com catálogo pt-PT
+(`freecad/topografia/resources/translations/`). Os comandos principais
+abrem painéis de tarefa: o de importação mostra pré-visualização live
+com o próprio motor (mapeamento/delimitador/decimal detectados e
+sobreponíveis, linhas rejeitadas com motivo ANTES de importar); o de
+TIN pré-marca as breaklines pelas chaves de descrição; o de
+terraplenagem detecta TIN/alinhamento/perfil por varredura do documento
+e exporta CSV e gráfico de mass haul; o export LandXML escreve um
+ficheiro por objecto (sem sobreposições na multi-selecção).
 
 ## Testes
 
@@ -56,8 +64,8 @@ Correr dentro do FreeCADCmd (build 26.3-dev deste clone):
 
 ```bash
 /mnt/hypatia/FreeCAD/build/debug/bin/FreeCADCmd tests/run_all.py
-# 41 passed: csv_io, chaves, triangulação, objectos, curvas, terraplenagem,
-#            LandXML round-trip e handoff CorridorRoad
+# 53 passed: csv_io, chaves, triangulação, objectos, curvas, terraplenagem,
+#            LandXML round-trip, handoff CorridorRoad e painéis da GUI
 ```
 
 O teste de handoff (`tests/test_prw_handoff.py`) prova que a TIN deste módulo
@@ -69,5 +77,6 @@ alimenta directamente o `TinSamplingService` do CorridorRoad via `TINSurface`
 - Construção da malha por `addFacet` em loop (~12,5 s para 10k pontos;
   a triangulação pura é 0,34 s) — optimizar com constructor por lista.
 - Breakline = uma polilinha por código (ver convenções acima).
-- Sem GUI (etiquetas de curvas, agrupamentos visuais) — fase seguinte.
+- GUI G1 concluída (painéis de tarefa, i18n); etiquetas de curvas, cores
+  por chave de descrição e folha TechDraw ficam para a fase G2.
 - LandXML de saída cobre superfície e pontos (alinhamentos/perfis ficam para o PRW).
