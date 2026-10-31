@@ -188,9 +188,9 @@ class PainelImportacao(Painel):
         self.combo_decimal.setToolTip(f"{tr('Detected')}: '{rel.decimal}'")
         self.rotulo_info.setText(
             f"{os.path.basename(caminho)} — {tr('mapping')} {rel.mapeamento} · "
+            f"'{rel.delimitador}' · {tr('decimal')} '{rel.decimal}' · "
             f"{len(rel.pontos)} {tr('points')} · "
-            f"{len(rel.rejeitadas)} {tr('rejected rows')} · "
-            f"{tr('decimal')} '{rel.decimal}'")
+            f"{len(rel.rejeitadas)} {tr('rejected rows')}")
         for ponto in rel.pontos[:_LIMITE_PREVIEW]:
             n = self.tabela.rowCount()
             self.tabela.insertRow(n)
@@ -221,7 +221,7 @@ class PainelImportacao(Painel):
         for caminho in caminhos:
             try:
                 rel = le_pontos(caminho, **opcoes)
-            except ValueError as exc:
+            except (ValueError, OSError) as exc:
                 App.Console.PrintError(f"{caminho}: {exc}\n")
                 continue
             if not rel.pontos:

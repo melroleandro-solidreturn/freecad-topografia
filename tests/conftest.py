@@ -5,10 +5,14 @@
 """
 from __future__ import annotations
 
+import os
 import sys
 import types
 import pkgutil
 from pathlib import Path
+
+# painéis Qt em modo headless (antes de qualquer import de PySide)
+os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 RAIZ = Path(__file__).resolve().parent.parent
 
@@ -28,6 +32,21 @@ class _Dummy:
 
 
 _STUB.getMainWindow = lambda: _Dummy()
+_STUB.Control = _Dummy()
+_STUB.SendMsgToActiveView = lambda *a, **k: None
+
+
+class _Seleccao:
+    @staticmethod
+    def getSelection(*a, **k):
+        return []
+
+    @staticmethod
+    def addSelection(*a, **k):
+        return None
+
+
+_STUB.Selection = _Seleccao()
 for _nome in ("FreeCADGui", "MeshGui", "PointsGui"):
     sys.modules.setdefault(_nome, _STUB)
 
@@ -38,6 +57,14 @@ import freecad  # noqa: E402
 freecad.__path__ = pkgutil.extend_path(freecad.__path__, freecad.__name__)
 
 import pytest  # noqa: E402
+
+
+@pytest.fixture(scope="session")
+def qapp():
+    """QApplication partilhada (offscreen) para instanciar os painéis."""
+    from PySide import QtWidgets
+
+    return QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
 
 
 @pytest.fixture()
