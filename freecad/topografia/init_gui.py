@@ -47,23 +47,12 @@ class CmdCriarTIN:
         }
 
     def IsActive(self):
-        return bool(Gui.Selection.getSelection())
+        return True
 
     def Activated(self):
-        from freecad.topografia.objetos.tin import TIN
+        from freecad.topografia.gui.painel_tin import PainelTIN
 
-        seleccionados = [o for o in Gui.Selection.getSelection()
-                         if getattr(o, "Proxy", None) and o.Proxy.Type == "Topografia::Levantamento"]
-        if not seleccionados:
-            App.Console.PrintError("[Topografia] seleccione um ou mais Levantamentos\n")
-            return
-        doc = _doc()
-        obj = doc.addObject("Mesh::FeaturePython", "TIN")
-        TIN(obj)
-        obj.Levantamentos = seleccionados
-        obj.CodigosBreakline = ["EIX"]
-        doc.recompute()
-        App.Console.PrintMessage(f"[Topografia] TIN: {obj.Estatisticas}\n")
+        Gui.Control.showDialog(PainelTIN())
 
 
 class CmdCurvasDeNivel:
