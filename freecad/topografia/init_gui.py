@@ -91,33 +91,12 @@ class CmdTerraplenagem:
         }
 
     def IsActive(self):
-        return bool(Gui.Selection.getSelection())
+        return True
 
     def Activated(self):
-        from freecad.topografia.objetos.terraplenagem import Terraplenagem
+        from freecad.topografia.gui.painel_terraplenagem import PainelTerraplenagem
 
-        doc = _doc()
-        obj = doc.addObject("App::FeaturePython", "Terraplenagem")
-        Terraplenagem(obj)
-        por_tipo = {}
-        for o in Gui.Selection.getSelection():
-            tipo = str(getattr(getattr(o, "Proxy", None), "Type", "") or "")
-            if tipo == "Topografia::Levantamento":
-                continue
-            if "ModeloTIN" in o.PropertiesList:
-                por_tipo["tin"] = o
-            elif str(o.Name).startswith("V1Alignment") or "AlignmentId" in o.PropertiesList and "IPPoints" in o.PropertiesList:
-                por_tipo["alinhamento"] = o
-            elif str(o.Name).startswith("V1Profile") or "ProfileKind" in o.PropertiesList:
-                por_tipo["perfil"] = o
-        if "tin" in por_tipo:
-            obj.TIN = por_tipo["tin"]
-        if "alinhamento" in por_tipo:
-            obj.Alinhamento = por_tipo["alinhamento"]
-        if "perfil" in por_tipo:
-            obj.Perfil = por_tipo["perfil"]
-        doc.recompute()
-        App.Console.PrintMessage(f"[Topografia] {obj.Estatisticas}\n")
+        Gui.Control.showDialog(PainelTerraplenagem())
 
 
 class CmdExportarLandXML:
